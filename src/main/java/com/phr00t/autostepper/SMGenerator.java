@@ -119,11 +119,13 @@ public class SMGenerator {
         String songname = filename.replace(".mp3", " ").replace(".wav", " ").replace(".com", " ").replace(".org", " ").replace(".info", " ");
         String shortName = songname.length() > 30 ? songname.substring(0, 30) : songname;
         String buff;
+        String basename;
         File dir = new File(outputdir, filename + "_dir/");
         dir.mkdirs();
-        File smfile = new File(dir, filename + ".sm");
+        basename = (filename.lastIndexOf(".") > 0) ? filename.substring(0, filename.lastIndexOf(".")) : filename;
+        File smfile = new File(dir, basename + ".sm");
         // get image for sm
-        File imgFile = new File(dir, filename + "_img.png");
+        File imgFile = new File(dir, basename + "_img.png");
         String imgFileName = "";
         if( imgFile.exists() == false ) {
             System.out.println("Attempting to get image for background & banner...");
