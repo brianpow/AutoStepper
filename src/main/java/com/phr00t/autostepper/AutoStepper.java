@@ -22,7 +22,7 @@ public class AutoStepper {
     public static float MAX_BPM = 170f, MIN_BPM = 70f, BPM_SENSITIVITY = 0.05f, STARTSYNC = 0.0f;
     public static double TAPSYNC = -0.11;
     public static boolean USETAPPER = false, HARDMODE = false, UPDATESM = false;
-    
+    public static int FFTSIZE = 512;
     public static Minim minim;
     public static AutoStepper myAS = new AutoStepper();
     
@@ -88,9 +88,10 @@ public class AutoStepper {
         TAPSYNC = Double.parseDouble(getArg(args, "tapsync", "-0.11"));
         HARDMODE = getArg(args, "hard", "false").equals("true");
         UPDATESM = getArg(args, "updatesm", "false").equals("true");
+        FFTSIZE = Integer.parseInt(getArg(args, "fftsize", "512"));
         File inputFile = new File(input);
         if( inputFile.isFile() ) {
-            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir);            
+            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir, args, FFTSIZE);            
         } else if( inputFile.isDirectory() ) {
             System.out.println("Processing directory: " + inputFile.getAbsolutePath());
             File[] allfiles = inputFile.listFiles();
@@ -98,7 +99,7 @@ public class AutoStepper {
                 String extCheck = f.getName().toLowerCase();
                 if( f.isFile() &&
                     (extCheck.endsWith(".mp3") || extCheck.endsWith(".wav")) ) {
-                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir);                    
+                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir, args, FFTSIZE);                    
                 } else {
                     System.out.println("Skipping unsupported file: " + f.getName());
                 }
@@ -258,8 +259,7 @@ public class AutoStepper {
         return BPM;
     }
     
-    void analyzeUsingAudioRecordingStream(File filename, float seconds, String outputDir) {
-      int fftSize = 512;
+    void analyzeUsingAudioRecordingStream(File filename, float seconds, String outputDir, String[] args, int fftSize) {
       
       AudioRecordingStream stream = minim.loadFileStream(filename.getAbsolutePath(), fftSize, false);
 
