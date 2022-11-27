@@ -52,7 +52,7 @@ public class AutoStepper {
             for(String s : args) {
                 s = s.replace("\"", "");
                 if( s.startsWith(argname) ) {
-                    return s.substring(s.indexOf("=") + 1).toLowerCase();
+                    return s.substring(s.indexOf("=") + 1);
                 }
             }
         } catch(Exception e) { }
