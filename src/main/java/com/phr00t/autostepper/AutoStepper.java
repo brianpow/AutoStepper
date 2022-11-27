@@ -410,7 +410,7 @@ public class AutoStepper {
       System.out.println("Start Time: " + startTime);
       
       // start making the SM
-      BufferedWriter smfile = SMGenerator.GenerateSM(BPM, startTime, filename, outputDir);
+      BufferedWriter smfile = SMGenerator.GenerateSM(BPM, startTime, filename, outputDir, args);
       
       if( HARDMODE ) System.out.println("Hard mode enabled! Extra steps for you! :-O");
       

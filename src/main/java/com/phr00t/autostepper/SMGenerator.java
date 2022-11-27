@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import com.phr00t.autostepper.AutoStepper;
 
 /**
  *
@@ -22,26 +23,31 @@ public class SMGenerator {
 
     private static String Header =
             "#TITLE:$TITLE;\n" +
-            "#SUBTITLE:;\n" +
-            "#ARTIST:AutoStepper by phr00t.com;\n" +
-            "#TITLETRANSLIT:;\n" +
-            "#SUBTITLETRANSLIT:;\n" +
-            "#ARTISTTRANSLIT:;\n" +
-            "#GENRE:;\n" +
-            "#CREDIT:AutoStepper by phr00t.com;\n" +
-            "#BANNER:$BGIMAGE;\n" +
-            "#BACKGROUND:$BGIMAGE;\n" +
-            "#LYRICSPATH:;\n" +
-            "#CDTITLE:;\n" +
+            "#SUBTITLE:$SUBTITLE;\n" +
+            "#ARTIST:$ARTIST;\n" +
+            "#TITLETRANSLIT:$TITLETRANSLIT;\n" +
+            "#SUBTITLETRANSLIT:$SUBTITLETRANSLIT;\n" +
+            "#ARTISTTRANSLIT:$ARTISTTRANSLIT;\n" +
+            "#GENRE:$GENRE;\n" +
+            "#CREDIT:$CREDIT;\n" +
+            "#BANNER:$BANNER;\n" +
+            "#BACKGROUND:$BACKGROUND;\n" +
+            "#LYRICSPATH:$LYRICSPATH;\n" +
+            "#CDTITLE:$CDTITLE;\n" +
             "#MUSIC:$MUSICFILE;\n" +
             "#OFFSET:$STARTTIME;\n" +
-            "#SAMPLESTART:30.0;\n" +
-            "#SAMPLELENGTH:30.0;\n" +
-            "#SELECTABLE:YES;\n" +
+            "#SAMPLESTART:$SAMPLESTART;\n" +
+            "#SAMPLELENGTH:$SAMPLELENGTH;\n" +
+            "#DISPLAYBPM:$DISPLAYBPM;\n" +
+            "#SELECTABLE:$SELECTABLE;\n" +
+            "#BGCHANGES:$BGCHANGES;\n" +
+            "#FGCHANGES:$FGCHANGES;\n" +
             "#BPMS:0.000000=$BPM;\n" +
-            "#STOPS:;\n" +
-            "#KEYSOUNDS:;\n" +
-            "#ATTACKS:;";
+            "#STOPS:$STOPS;\n" +
+            "#KEYSOUNDS:$KEYSOUNDS;\n" +
+            "#ATTACKS:$ATTACKS;";
+
+    private static String[] UserHeaders = {"SUBTITLE", "TITLETRANSLIT", "SUBTITLETRANSLIT", "ARTISTTRANSLIT", "GENRE", "LYRICSPATH", "CDTITLE", "DISPLAYBPM", "BGCHANGES", "FGCHANGES", "STOPS", "KEYSOUNDS", "ATTACKS"} ;
 
     public static String Challenge =
             "Challenge:\n" +
@@ -108,10 +114,11 @@ public class SMGenerator {
         return new File(dir, filename + ".sm");
     }
 
-    public static BufferedWriter GenerateSM(float BPM, float startTime, File songfile, String outputdir) {
+    public static BufferedWriter GenerateSM(float BPM, float startTime, File songfile, String outputdir, String args[]) {
         String filename = songfile.getName();
         String songname = filename.replace(".mp3", " ").replace(".wav", " ").replace(".com", " ").replace(".org", " ").replace(".info", " ");
         String shortName = songname.length() > 30 ? songname.substring(0, 30) : songname;
+        String buff;
         File dir = new File(outputdir, filename + "_dir/");
         dir.mkdirs();
         File smfile = new File(dir, filename + ".sm");
@@ -130,8 +137,23 @@ public class SMGenerator {
             smfile.delete();
             copyFileUsingStream(songfile, new File(dir, filename));
             BufferedWriter writer = new BufferedWriter(new FileWriter(smfile));
-            writer.write(Header.replace("$TITLE", shortName).replace("$BGIMAGE", imgFileName).replace("$MUSICFILE", filename)
-                         .replace("$STARTTIME", Float.toString(startTime + AutoStepper.STARTSYNC)).replace("$BPM", Float.toString(BPM)));
+            buff = Header.replace("$TITLE;", AutoStepper.getArg(args, "TITLE", shortName) +";").replace("$BANNER", AutoStepper.getArg(args, "BANNER", imgFileName))
+                         .replace("$BACKGROUND", AutoStepper.getArg(args, "BACKGROUND", imgFileName))
+                         .replace("$MUSICFILE", AutoStepper.getArg(args, "MUSICFILE", filename))
+                         .replace("$STARTTIME", AutoStepper.getArg(args, "STARTTIME", Float.toString(startTime + AutoStepper.STARTSYNC)))
+                         .replace("$BPM", AutoStepper.getArg(args, "BPM", Float.toString(BPM)))
+                         .replace("$ARTIST;", AutoStepper.getArg(args, "ARTIST", "AutoStepper by phr00t.com;"))
+                         .replace("$CREDIT;", AutoStepper.getArg(args, "CREDIT", "AutoStepper by phr00t.com;"))
+                         .replace("$SAMPLESTART", AutoStepper.getArg(args, "SAMPLESTART", "30.0"))
+                         .replace("$SAMPLELENGTH", AutoStepper.getArg(args, "SAMPLELENGTH", "30.0"))
+                         .replace("$SELECTABLE", AutoStepper.getArg(args, "SELECTABLE", "YES"));
+                         
+
+            for (String s: UserHeaders){
+                buff = buff.replace("$" + s + ";", AutoStepper.getArg(args, s, "") + ";");
+            }
+            writer.write(buff);
+
             return writer;
         } catch(Exception e) {}
         return null;
