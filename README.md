@@ -14,11 +14,11 @@ It works on a common line with arguments, which are all optional. If you just ru
 
 The arguments are:
 
-    input=[file/dir] output=[songs dir] duration=[seconds to process] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false]
+    input=file/dir, default: current dir] output=[songs dir, default: current dir] duration=[seconds to process, default: song length] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false] fftsize=[default: 52] SM_HEADER=[VALUE]
     
 Example:
 
-    java -jar AutoStepper.jar input="./songs/" duration=130 hard=true
+    java -jar AutoStepper.jar input="./songs/" duration=130 hard=true ARTIST="John Doe"
 
 If you set tap=true, AutoStepper won't try and automatically calculate the BPM or offset, and will instead prompt you to hit ENTER along with 30 consecutive beats. AutoStepper will then do the rest.
 
