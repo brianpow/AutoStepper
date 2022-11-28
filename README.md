@@ -14,7 +14,7 @@ It works on a common line with arguments, which are all optional. If you just ru
 
 The arguments are:
 
-    input=file/dir, default: current dir] output=[songs dir, default: current dir] duration=[seconds to process, default: song length] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false] fftsize=[default: 512] SM_HEADER=[VALUE]
+    input=file/dir, default: current dir] output=[songs dir, default: current dir] duration=[seconds to process, default: song length] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false] fftsize=[default: 512] stepgran=[default: 1] SM_HEADER=[VALUE]
     
 Example:
 

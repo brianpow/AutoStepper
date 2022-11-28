@@ -23,6 +23,7 @@ public class AutoStepper {
     public static double TAPSYNC = -0.11;
     public static boolean USETAPPER = false, HARDMODE = false, UPDATESM = false;
     public static int FFTSIZE = 512;
+    public static int STEP_GRAN = 1;
     public static Minim minim;
     public static AutoStepper myAS = new AutoStepper();
     
@@ -74,7 +75,7 @@ public class AutoStepper {
         System.out.println("Starting AutoStepper by Phr00t's Software, v1.7 (See www.phr00t.com for more goodies!)");
         if( hasArg(args, "help") || hasArg(args, "h") || hasArg(args, "?") || hasArg(args, "-help") || hasArg(args, "-?") || hasArg(args, "-h") ) {
             System.out.println("Argument usage (all fields are optional):\n"
-                    + "input=file/dir, default: current dir] output=[songs dir, default: current dir] duration=[seconds to process, default: song length] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false] fftsize=[default: 512] SM_HEADER=[VALUE]");
+                    + "input=file/dir, default: current dir] output=[songs dir, default: current dir] duration=[seconds to process, default: song length] tap=[true/false] tapsync=[offset time in seconds for tap, default: -0.11] hard=[true/false] updatesm=[true/false] fftsize=[default: 512] stepgran=[default: 1] SM_HEADER=[VALUE]");
             return;
         }
         MAX_BPM = Float.parseFloat(getArg(args, "maxbpm", "170f"));
@@ -89,9 +90,10 @@ public class AutoStepper {
         HARDMODE = getArg(args, "hard", "false").equals("true");
         UPDATESM = getArg(args, "updatesm", "false").equals("true");
         FFTSIZE = Integer.parseInt(getArg(args, "fftsize", "512"));
+        STEP_GRAN = Integer.parseInt(getArg(args, "stepgran", "1"));
         File inputFile = new File(input);
         if( inputFile.isFile() ) {
-            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir, args, FFTSIZE);            
+            myAS.analyzeUsingAudioRecordingStream(inputFile, duration, outputDir, args, FFTSIZE, STEP_GRAN);
         } else if( inputFile.isDirectory() ) {
             System.out.println("Processing directory: " + inputFile.getAbsolutePath());
             File[] allfiles = inputFile.listFiles();
@@ -99,7 +101,7 @@ public class AutoStepper {
                 String extCheck = f.getName().toLowerCase();
                 if( f.isFile() &&
                     (extCheck.endsWith(".mp3") || extCheck.endsWith(".wav")) ) {
-                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir, args, FFTSIZE);                    
+                    myAS.analyzeUsingAudioRecordingStream(f, duration, outputDir, args, FFTSIZE, STEP_GRAN);
                 } else {
                     System.out.println("Skipping unsupported file: " + f.getName());
                 }
@@ -259,7 +261,7 @@ public class AutoStepper {
         return BPM;
     }
     
-    void analyzeUsingAudioRecordingStream(File filename, float seconds, String outputDir, String[] args, int fftSize) {
+    void analyzeUsingAudioRecordingStream(File filename, float seconds, String outputDir, String[] args, int fftSize, int stepGranularity) {
       
       AudioRecordingStream stream = minim.loadFileStream(filename.getAbsolutePath(), fftSize, false);
 
@@ -414,11 +416,11 @@ public class AutoStepper {
       
       if( HARDMODE ) System.out.println("Hard mode enabled! Extra steps for you! :-O");
       
-      SMGenerator.AddNotes(smfile, SMGenerator.Beginner, StepGenerator.GenerateNotes(1, HARDMODE ? 2 : 4, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
-      SMGenerator.AddNotes(smfile, SMGenerator.Easy, StepGenerator.GenerateNotes(1, HARDMODE ? 1 : 2, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
-      SMGenerator.AddNotes(smfile, SMGenerator.Medium, StepGenerator.GenerateNotes(2, HARDMODE ? 4 : 6, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
-      SMGenerator.AddNotes(smfile, SMGenerator.Hard, StepGenerator.GenerateNotes(2, HARDMODE ? 2 : 4, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
-      SMGenerator.AddNotes(smfile, SMGenerator.Challenge, StepGenerator.GenerateNotes(2, HARDMODE ? 1 : 2, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, true));
+      SMGenerator.AddNotes(smfile, SMGenerator.Beginner, StepGenerator.GenerateNotes(stepGranularity, HARDMODE ? 2 : 4, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
+      SMGenerator.AddNotes(smfile, SMGenerator.Easy, StepGenerator.GenerateNotes(stepGranularity, HARDMODE ? 1 : 2, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
+      SMGenerator.AddNotes(smfile, SMGenerator.Medium, StepGenerator.GenerateNotes(stepGranularity + 1, HARDMODE ? 4 : 6, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
+      SMGenerator.AddNotes(smfile, SMGenerator.Hard, StepGenerator.GenerateNotes(stepGranularity + 1, HARDMODE ? 2 : 4, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, false));
+      SMGenerator.AddNotes(smfile, SMGenerator.Challenge, StepGenerator.GenerateNotes(stepGranularity + 1, HARDMODE ? 1 : 2, manyTimes, fewTimes, MidFFTAmount, MidFFTMaxes, timePerSample, timePerBeat, startTime, seconds, true));
       SMGenerator.Complete(smfile);
       
       System.out.println("[--------- SUCCESS ----------]");
